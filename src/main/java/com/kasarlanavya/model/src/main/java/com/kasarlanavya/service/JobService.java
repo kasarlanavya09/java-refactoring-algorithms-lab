@@ -4,24 +4,28 @@ import com.kasarlanavya.model.Job;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class JobService {
 
     private final List<Job> jobs = new ArrayList<>();
+    private final Map<Integer, Job> jobsById = new HashMap<>();
     private int nextId = 1;
 
     public Job addJob(String name, int priority) {
         Job job = new Job(nextId++, name, priority);
+
         jobs.add(job);
+        jobsById.put(job.getId(), job);
+
         return job;
     }
 
     public Optional<Job> findById(int id) {
-        return jobs.stream()
-                .filter(job -> job.getId() == id)
-                .findFirst();
+        return Optional.ofNullable(jobsById.get(id));
     }
 
     public List<Job> getAllJobs() {
@@ -41,7 +45,14 @@ public class JobService {
     }
 
     public boolean removeJob(int id) {
-        return jobs.removeIf(job -> job.getId() == id);
+        Job job = jobsById.remove(id);
+
+        if (job == null) {
+            return false;
+        }
+
+        jobs.remove(job);
+        return true;
     }
 
     public int size() {
